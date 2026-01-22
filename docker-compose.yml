@@ -1,0 +1,50 @@
+services:
+  point_app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: point_app
+    env_file:
+      - .env
+    command: sh entrypoint.sh
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./:/app
+      - static_volume:/app/static_collect
+      - media_volume:/app/media
+    depends_on:
+      - postgres
+    networks:
+      - point_network
+    restart: unless-stopped
+
+  postgres:
+    image: postgres:15-alpine
+    container_name: point_postgres
+    environment:
+      POSTGRES_DB: ${DB_NAME:-taipu_point}
+      POSTGRES_USER: ${DB_USER:-postgres}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-postgres}
+      PGDATA: /var/lib/postgresql/data/pgdata
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    networks:
+      - point_network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USER:-postgres}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  postgres_data:
+  static_volume:
+  media_volume:
+
+networks:
+  point_network:
+    driver: bridge
