@@ -1,28 +1,32 @@
 from rest_framework import status
+from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
 from drf_spectacular.utils import extend_schema
 from utils.views import ModelViewSet
 from apps.products.models import Product
 from apps.products.serializers import ProductSerializer
 from apps.products.filters import ProductFilter
+from core.permissions import IsStore, IsProductOwner
 
 
 @extend_schema(
     tags=["商品管理"],
-    description="商品 CRUD API，目前開放所有操作供測試使用；未來將限制僅店家/管理者可操作",
+    description="商品 CRUD API，查詢不需要登入，建立需要店家權限，修改需要是商品擁有者",
 )
 class ProductViewSet(ModelViewSet):
     """
     商品 ViewSet
     
     提供商品的 CRUD 操作：
-    - List: 查詢商品列表（支援分頁與篩選）
-    - Retrieve: 查詢單一商品
-    - Create: 建立商品（目前開放，未來限店家）
-    - Update: 更新商品（目前開放，未來限店家本身）
-    - Destroy: 軟刪除商品（僅修改 is_active）
+    - List/Retrieve: 查詢商品列表/詳情（不需要登入）
+    - Create: 建立商品（需要登入且為店家）
+    - Update: 更新商品（需要登入且為商品擁有者或管理者）
+    - Destroy: 軟刪除商品（需要登入且為商品擁有者或管理者）
     
-    注意：目前暫不限制權限，供測試使用；未來需掛載 IsStoreUserOrReadOnly 權限。
+    權限控制：
+    - 查詢：AllowAny（不需要登入）
+    - 建立：IsAuthenticated + IsStore（需要是店家）
+    - 更新/刪除：IsAuthenticated + IsProductOwner（需要是商品擁有者或管理者）
     """
     
     queryset = Product.objects.select_related("store").all()
@@ -31,6 +35,24 @@ class ProductViewSet(ModelViewSet):
     search_fields = ["name", "memo"]
     ordering_fields = ["created_at", "updated_at", "required_points", "stock"]
     ordering = ["-created_at"]
+    
+    def get_permissions(self):
+        """
+        動態設定權限
+        
+        - List/Retrieve: 不需要登入（AllowAny）
+        - Create: 需要登入且為店家（IsAuthenticated + IsStore）
+        - Update/Delete: 需要登入且為商品擁有者或管理者（IsAuthenticated + IsProductOwner）
+        """
+        if self.action in ['list', 'retrieve']:
+            # 查詢商品不需要登入
+            return [AllowAny()]
+        elif self.action == 'create':
+            # 建立商品需要是店家
+            return [IsAuthenticated(), IsStore()]
+        else:
+            # 更新/刪除需要是商品擁有者或管理者
+            return [IsAuthenticated(), IsProductOwner()]
     
     def get_queryset(self):
         """
@@ -47,14 +69,8 @@ class ProductViewSet(ModelViewSet):
         """
         建立商品時自動設定 store 為當前登入用戶
         
-        注意：目前暫不檢查用戶角色，未來需加入權限驗證：
-        - 檢查用戶是否為店家（role == RoleChoices.STORE）
-        - 或檢查用戶是否為管理者（role == RoleChoices.ADMIN）
+        注意：權限檢查已透過 get_permissions() 中的 IsStore 處理
         """
-        # TODO: 未來加入權限檢查
-        # if self.request.user.role not in [RoleChoices.STORE, RoleChoices.ADMIN]:
-        #     raise PermissionDenied("僅店家和管理者可建立商品")
-        
         serializer.save(store=self.request.user)
     
     @extend_schema(
@@ -66,14 +82,9 @@ class ProductViewSet(ModelViewSet):
         軟刪除商品
         
         不實際刪除資料，僅將 is_active 設為 False。
-        未來需加入權限檢查：僅店家可刪除自己的商品，管理者可刪除任何商品。
+        權限檢查已透過 get_permissions() 中的 IsProductOwner 處理。
         """
         instance = self.get_object()
-        
-        # TODO: 未來加入權限檢查
-        # if instance.store != request.user and request.user.role != RoleChoices.ADMIN:
-        #     raise PermissionDenied("僅可刪除自己的商品")
-        
         instance.is_active = False
         instance.save(update_fields=["is_active"])
         
