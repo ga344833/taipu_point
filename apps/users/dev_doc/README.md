@@ -5,6 +5,7 @@
 ## 文件索引
 
 - [USER_MODEL_IMPLEMENTATION.md](./USER_MODEL_IMPLEMENTATION.md) - User 模型實作總結
+- [USER_POINTS_IMPLEMENTATION.md](./USER_POINTS_IMPLEMENTATION.md) - UserPoints 模型實作總結
 
 ## 說明
 
