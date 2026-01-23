@@ -91,3 +91,4 @@ class CurrentUserMiddleware:
         """取得當前用戶"""
         return getattr(_user, "value", None)
 
+

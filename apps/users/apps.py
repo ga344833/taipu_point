@@ -6,3 +6,4 @@ class UsersConfig(AppConfig):
     name = "apps.users"
     verbose_name = "用戶管理"
 
+

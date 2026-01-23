@@ -29,3 +29,4 @@ class PaymentFailedException(APIException):
     default_detail = _("支付處理失敗")
     default_code = "payment_failed"
 
+

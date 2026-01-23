@@ -38,7 +38,48 @@ taipu_point/
 
 ## 快速開始
 
-### 1. 環境設定
+### 方式一：使用 Docker（推薦）
+
+#### 1. 環境變數設定
+
+複製 `env.example` 為 `.env` 並設定相關變數：
+
+```bash
+cp env.example .env
+```
+
+編輯 `.env` 檔案，設定必要的環境變數（資料庫設定已預設為 Docker 環境）。
+
+#### 2. 啟動服務
+
+```bash
+# 建立並啟動容器
+docker-compose up -d
+
+# 查看日誌
+docker-compose logs -f
+
+# 停止服務
+docker-compose down
+```
+
+#### 3. 建立超級用戶
+
+```bash
+docker-compose exec point_app python manage.py createsuperuser
+```
+
+#### 4. 存取服務
+
+- API 服務: http://localhost:8000
+- API 文件: http://localhost:8000/api/docs/
+- 資料庫: localhost:5432
+
+詳細說明請參考 [Docker 環境架設文件](doc/DOCKER_SETUP.md)
+
+### 方式二：本地開發
+
+#### 1. 環境設定
 
 ```bash
 # 建立虛擬環境
@@ -54,30 +95,33 @@ source venv/bin/activate
 pip install -r requirements.txt
 ```
 
-### 2. 環境變數設定
+#### 2. 環境變數設定
 
-複製 `.env.example` 為 `.env` 並設定相關變數：
+複製 `env.example` 為 `.env` 並設定相關變數：
 
 ```bash
+# 本地開發使用 SQLite
+DB_ENGINE=sqlite
+DB_NAME=db.sqlite3
 SECRET_KEY=your-secret-key-here
 DEBUG=true
 TIME_ZONE=Asia/Taipei
 ```
 
-### 3. 資料庫遷移
+#### 3. 資料庫遷移
 
 ```bash
 python manage.py makemigrations
 python manage.py migrate
 ```
 
-### 4. 建立超級用戶
+#### 4. 建立超級用戶
 
 ```bash
 python manage.py createsuperuser
 ```
 
-### 5. 啟動開發伺服器
+#### 5. 啟動開發伺服器
 
 ```bash
 python manage.py runserver

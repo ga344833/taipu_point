@@ -6,3 +6,4 @@ class PaymentsConfig(AppConfig):
     name = "apps.payments"
     verbose_name = "支付管理"
 
+

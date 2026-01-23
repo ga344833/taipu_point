@@ -1,10 +1,27 @@
-Django>=4.2,<5.0
-djangorestframework>=3.14.0
-djangorestframework-simplejwt>=5.3.0
-django-filter>=23.0
-drf-spectacular>=0.26.0
-drf-standardized-errors>=1.0
-python-dotenv>=1.0.0
-PyJWT>=2.8.0
-corsheaders>=4.0.0
+# Django 核心
+Django==4.2.16
+djangorestframework==3.15.2
+
+# JWT 認證
+djangorestframework-simplejwt==5.3.1
+PyJWT==2.9.0
+
+# API 文件與工具
+drf-spectacular==0.27.2
+drf-standardized-errors==0.15.0
+
+# 過濾與分頁
+django-filter==24.3
+
+# CORS 支援
+django-cors-headers==4.0.0
+
+# 資料庫
+psycopg2-binary==2.9.10
+
+# 環境變數
+python-dotenv==1.0.1
+
+# 生產環境伺服器
+gunicorn==23.0.0
 

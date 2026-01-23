@@ -6,3 +6,4 @@ class PointsConfig(AppConfig):
     name = "apps.points"
     verbose_name = "點數管理"
 
+
