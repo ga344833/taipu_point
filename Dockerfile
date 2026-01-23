@@ -9,6 +9,7 @@ RUN apt-get update && \
     postgresql-client \
     build-essential \
     libpq-dev \
+    dos2unix \
     && rm -rf /var/lib/apt/lists/*
 
 # 升級 pip
@@ -20,6 +21,9 @@ RUN pip install --no-cache-dir -r requirements.txt
 
 # 複製專案檔案
 COPY . .
+
+# 修正 entrypoint.sh 的行尾符號（Windows CRLF -> Linux LF）
+RUN dos2unix entrypoint.sh || true
 
 # 設定 entrypoint 執行權限
 RUN chmod +x entrypoint.sh
