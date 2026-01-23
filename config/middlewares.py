@@ -24,6 +24,9 @@ class CurrentUserMiddleware:
     """
     當前用戶中間件
     從 JWT token 中解析用戶資訊，並提供線程本地儲存
+    
+    注意：目前專案中未使用此 middleware，保留供未來可能使用
+    （如：JWT 登入實作、操作日誌記錄等）
     """
     
     def __init__(self, get_response):
