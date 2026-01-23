@@ -1,0 +1,20 @@
+# 確保 shell 腳本使用 LF 行尾符號
+*.sh text eol=lf
+
+# Python 檔案使用 LF
+*.py text eol=lf
+
+# 其他文字檔案
+*.txt text
+*.md text
+*.json text
+*.yml text
+*.yaml text
+
+# 二進位檔案
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.ico binary
+*.pdf binary

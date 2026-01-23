@@ -1,5 +1,5 @@
-#!/bin/bash
-
+#!/bin/bash 
+# windows 開發須將右下角點擊更變為 LF 行尾符號
 set -e
 
 echo "等待資料庫連線..."
@@ -12,7 +12,11 @@ echo "資料庫連線成功！"
 
 # 執行資料庫遷移
 echo "執行資料庫遷移..."
+# 先為 users app 建立 migration（因為 AUTH_USER_MODEL 設定）
+python manage.py makemigrations users --noinput || true
+# 然後為所有 app 建立 migration
 python manage.py makemigrations --noinput
+# 執行 migration
 python manage.py migrate --noinput
 
 # 收集靜態檔案
