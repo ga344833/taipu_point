@@ -53,5 +53,5 @@ Thumbs.db
 .coverage
 htmlcov/
 .pytest_cache/
-
 .dockerignore
+

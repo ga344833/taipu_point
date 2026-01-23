@@ -40,3 +40,4 @@ class ModelViewSet(GenericViewSet, DrfModelViewSet):
     def perform_update(self, serializer):
         return serializer.save(**self.extra_kwargs_on_save)
 
+

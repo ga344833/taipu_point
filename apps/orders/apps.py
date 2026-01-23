@@ -6,3 +6,4 @@ class OrdersConfig(AppConfig):
     name = "apps.orders"
     verbose_name = "訂單管理"
 
+
