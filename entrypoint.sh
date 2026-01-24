@@ -23,6 +23,10 @@ python manage.py migrate --noinput
 echo "收集靜態檔案..."
 python manage.py collectstatic --noinput || true
 
+# 建立預設測試帳號
+echo "建立預設測試帳號..."
+python manage.py seed_data || true
+
 # 啟動服務
 echo "啟動 Django 服務..."
 if [ "$DEBUG" = "true" ]; then
