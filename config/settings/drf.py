@@ -15,6 +15,16 @@ REST_FRAMEWORK = {
 
 # JWT Settings
 from datetime import timedelta
+import os
+from dotenv import load_dotenv
+
+load_dotenv(".env")
+
+# 取得 SECRET_KEY（與 base.py 中的邏輯一致）
+# 由於設定檔載入順序，這裡需要重新讀取環境變數
+# 或者可以直接使用 SECRET_KEY（因為 base.py 已經導入）
+# 為了避免循環導入，使用 os.getenv 重新讀取
+_JWT_SIGNING_KEY = os.getenv("SECRET_KEY", "django-insecure-change-this-in-production")
 
 SIMPLE_JWT = {
     "ACCESS_TOKEN_LIFETIME": timedelta(hours=1),
@@ -22,7 +32,7 @@ SIMPLE_JWT = {
     "ROTATE_REFRESH_TOKENS": True,
     "BLACKLIST_AFTER_ROTATION": True,
     "ALGORITHM": "HS256",
-    "SIGNING_KEY": None,  # 使用 SECRET_KEY
+    "SIGNING_KEY": _JWT_SIGNING_KEY,  # 使用 SECRET_KEY
     "AUTH_HEADER_TYPES": ("Bearer",),
     "USER_ID_FIELD": "id",
     "USER_ID_CLAIM": "user_id",
