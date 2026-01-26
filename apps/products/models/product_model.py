@@ -16,7 +16,7 @@ class Product(BaseModel):
         settings.AUTH_USER_MODEL,
         on_delete=models.CASCADE,
         related_name="products",
-        help_text="所屬店家",
+        help_text="所屬店家（後端自動代入，創建商品時會自動設定為當前登入的店家）",
     )
     
     name = models.CharField(

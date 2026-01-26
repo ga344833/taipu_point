@@ -20,6 +20,11 @@ class ProductSerializer(serializers.ModelSerializer):
         help_text="庫存數量，不得為負數",
     )
     
+    store = serializers.PrimaryKeyRelatedField(
+        read_only=True,
+        help_text="所屬店家（後端自動代入，無需提供）",
+    )
+    
     class Meta:
         model = Product
         fields = [
@@ -33,7 +38,7 @@ class ProductSerializer(serializers.ModelSerializer):
             "created_at",
             "updated_at",
         ]
-        read_only_fields = ["id", "created_at", "updated_at"]
+        read_only_fields = ["id", "store", "created_at", "updated_at"]
     
     def validate_required_points(self, value):
         """驗證 required_points 不為負數（Serializer 層驗證）"""
