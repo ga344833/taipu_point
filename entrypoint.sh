@@ -11,13 +11,31 @@ done
 echo "資料庫連線成功！"
 
 # 執行資料庫遷移
+echo "=========================================="
 echo "執行資料庫遷移..."
+echo "=========================================="
+
 # 先為 users app 建立 migration（因為 AUTH_USER_MODEL 設定）
-python manage.py makemigrations users --noinput || true
+echo "1. 建立 users app migration..."
+if python manage.py makemigrations users --noinput; then
+    echo "   ✓ users migration 建立成功或無變更"
+else
+    echo "   ⚠ users migration 建立失敗（已忽略）"
+fi
+
 # 然後為所有 app 建立 migration
-python manage.py makemigrations --noinput
+echo "2. 建立所有 app migration..."
+if python manage.py makemigrations --noinput; then
+    echo "   ✓ 所有 app migration 建立成功或無變更"
+else
+    echo "   ⚠ migration 建立失敗（已忽略）"
+fi
+
 # 執行 migration
+echo "3. 執行 migration..."
 python manage.py migrate --noinput
+echo "   ✓ Migration 執行完成"
+echo "=========================================="
 
 # 收集靜態檔案
 echo "收集靜態檔案..."
