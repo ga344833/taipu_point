@@ -13,18 +13,18 @@
 ### JWT 驗證整合
 
 #### 登入 API
-- [ ] 實作登入 API
-  - [ ] 使用者帳號密碼驗證
-  - [ ] 取得 Access Token
-  - [ ] 實作 Refresh Token 機制
-  - [ ] 整合 `rest_framework_simplejwt` 的 TokenObtainPairView
+- [x] 實作登入 API
+  - [x] 使用者帳號密碼驗證
+  - [x] 取得 Access Token
+  - [x] 實作 Refresh Token 機制
+  - [x] 整合 `rest_framework_simplejwt` 的 TokenObtainPairView
 
 #### 權限掛載
-- [ ] 將所有業務 API 掛載 `IsAuthenticated` 權限
-  - [ ] 檢查 DRF 權限設定（已在 `config/settings/drf.py` 設定）
-  - [ ] 確保未登入使用者無法存取業務 API
-  - [ ] 測試權限控制是否正常運作
-  - [ ] 驗證 JWT Token 驗證流程
+- [x] 將所有業務 API 掛載 `IsAuthenticated` 權限
+  - [x] 檢查 DRF 權限設定（已在 `config/settings/drf.py` 設定）
+  - [x] 確保未登入使用者無法存取業務 API
+  - [x] 測試權限控制是否正常運作
+  - [x] 驗證 JWT Token 驗證流程
 
 ---
 
@@ -43,32 +43,33 @@
   - [x] 刪除商品 API（軟刪除）
 
 #### 權限控制
-- [ ] 確保 A 店家不能修改 B 店家的商品
-  - [ ] 使用 `role` 判斷使用者身分
-  - [ ] 實作權限檢查邏輯
-  - [ ] 商品與店家的關聯設計
-  - [ ] 在 ViewSet 中加入權限驗證
+- [x] 確保 A 店家不能修改 B 店家的商品
+  - [x] 使用 `role` 判斷使用者身分
+  - [x] 實作權限檢查邏輯（IsProductOwner 權限類別）
+  - [x] 商品與店家的關聯設計
+  - [x] 在 ViewSet 中加入權限驗證（使用 get_permissions() 動態設定）
 
 ### 點數與兌換邏輯 (Points App)
 
 #### 儲值點數 API
-- [ ] 實作「儲值點數」API
-  - [ ] 初期使用簡易 POST 模擬金額輸入
-  - [ ] 手動增加 points 餘額
-  - [ ] 記錄儲值交易紀錄
+- [x] 實作「儲值點數」API
+  - [x] 初期使用簡易 POST 模擬金額輸入
+  - [x] 手動增加 points 餘額
+  - [x] 記錄儲值交易紀錄（PointTransaction）
 
 #### 兌換商品 API
-- [ ] 實作「兌換商品」API
-  - [ ] 餘額檢查邏輯
-  - [ ] 點數扣除邏輯
-  - [ ] 生成兌換序號
-  - [ ] 記錄兌換交易紀錄
+- [x] 實作「兌換商品」API
+  - [x] 餘額檢查邏輯
+  - [x] 點數扣除邏輯
+  - [x] 生成兌換序號（格式：EX + YYYYMMDD + 6位隨機碼）
+  - [x] 記錄兌換交易紀錄（PointExchange 和 PointTransaction）
 
 #### 資料庫事務 (Transaction)
-- [ ] 確保扣點與生成紀錄在同一事務中完成
-  - [ ] 使用 Django 的 `transaction.atomic()` 裝飾器
-  - [ ] 避免資料不一致問題
-  - [ ] 處理異常回滾機制
+- [x] 確保扣點與生成紀錄在同一事務中完成
+  - [x] 使用 Django 的 `transaction.atomic()` 裝飾器
+  - [x] 避免資料不一致問題
+  - [x] 處理異常回滾機制
+  - [x] 使用 `select_for_update()` 悲觀鎖防止併發問題
 
 ---
 
@@ -80,22 +81,23 @@
 
 #### drf-spectacular 整合
 - [x] 整合 drf-spectacular（已在設定檔中配置）
-- [ ] 為所有 API 添加 OpenAPI 註解
-  - [ ] 登入 API 文件化
-  - [ ] 商品 API 文件化（部分已完成）
-  - [ ] 點數 API 文件化
-  - [ ] 兌換 API 文件化
+- [x] 為所有 API 添加 OpenAPI 註解
+  - [x] 登入 API 文件化（使用 djangorestframework-simplejwt 內建文件）
+  - [x] 商品 API 文件化（ProductViewSet 已添加 @extend_schema）
+  - [x] 點數 API 文件化（PointDepositView, PointTransactionViewSet 已添加）
+  - [x] 兌換 API 文件化（PointExchangeView 已添加）
+  - [x] 用戶個人資料 API 文件化（MeView 已添加）
 - [x] 設定 API 文件端點（`/api/docs/` 與 `/api/redoc/`）
-- [ ] 確保面試官打開網址即可看到清楚的 API 規格
+- [x] 確保面試官打開網址即可看到清楚的 API 規格
 
 ### 錯誤處理
 
 #### 統一回傳格式
 - [x] 實作統一的錯誤回應格式（已在 `utils/custom_exception_handler.py` 中實作）
-- [ ] 驗證所有 API 錯誤回應格式一致性
-  - [ ] 格式範例：`{"code": 400, "message": "點數不足"}`
-  - [ ] 整合 `drf-standardized-errors` 或自訂異常處理器
-  - [ ] 展現開發標準與一致性
+- [x] 驗證所有 API 錯誤回應格式一致性
+  - [x] 格式範例：`{"type": "validation_error", "errors": [...], "details": "...", "dialog": false}`
+  - [x] 整合 `drf-standardized-errors` 或自訂異常處理器
+  - [x] 展現開發標準與一致性
 
 ---
 
@@ -106,15 +108,19 @@
 ### 單元測試 (Unit Test)
 
 #### 測試案例撰寫
-- [ ] 針對「點數扣除邏輯」撰寫測試案例
-  - [ ] 餘額剛好的情境
-  - [ ] 餘額不足的情境
-  - [ ] 商品不存在的情境
-  - [ ] 其他邊界條件測試
+- [x] 針對「點數扣除邏輯」撰寫測試案例
+  - [x] 餘額剛好的情境（test_member_can_exchange_product）
+  - [x] 餘額不足的情境（test_insufficient_balance）
+  - [x] 商品不存在的情境（test_inactive_product, test_insufficient_stock）
+  - [x] 其他邊界條件測試（併發測試、權限測試等）
+  - [x] 認證測試（test_auth.py）
+  - [x] 商品權限測試（test_products_permissions.py）
+  - [x] 點數儲值測試（test_point_deposit.py）
+  - [x] 點數兌換測試（test_point_exchange.py）
 
 #### 測試覆蓋率
-- [ ] 確保核心業務邏輯有足夠的測試覆蓋
-- [ ] 執行測試並確認所有測試通過
+- [x] 確保核心業務邏輯有足夠的測試覆蓋
+- [x] 執行測試並確認所有測試通過
 
 ### CI 與規範檢查
 
@@ -172,28 +178,28 @@
 ## 進度追蹤
 
 ### Day 2 檢查點
-- [ ] JWT 登入 API 完成
-- [ ] Refresh Token 機制實作完成
-- [ ] 所有業務 API 權限掛載完成
-- [ ] 權限控制測試通過
+- [x] JWT 登入 API 完成
+- [x] Refresh Token 機制實作完成
+- [x] 所有業務 API 權限掛載完成
+- [x] 權限控制測試通過
 
 ### Day 3 檢查點
 - [x] 商品 CRUD API 完成（已實作）
-- [ ] 商品權限控制實作完成（A 店家不能修改 B 店家的商品）
-- [ ] 儲值點數 API 完成
+- [x] 商品權限控制實作完成（A 店家不能修改 B 店家的商品）
+- [x] 儲值點數 API 完成
 
 ### Day 4 檢查點
-- [ ] 兌換商品 API 完成
-- [ ] 資料庫事務機制實作完成
-- [ ] 點數扣除邏輯測試通過
+- [x] 兌換商品 API 完成
+- [x] 資料庫事務機制實作完成
+- [x] 點數扣除邏輯測試通過
 
 ### Day 5 檢查點
-- [ ] API 文件化完成（為所有 API 添加 OpenAPI 註解）
-- [ ] 錯誤處理統一格式驗證完成
+- [x] API 文件化完成（為所有 API 添加 OpenAPI 註解）
+- [x] 錯誤處理統一格式驗證完成
 
 ### Day 6 檢查點
-- [ ] 單元測試撰寫完成
-- [ ] 程式碼格式化完成
+- [x] 單元測試撰寫完成
+- [ ] 程式碼格式化完成（待執行 Black）
 
 ### Day 7 檢查點
 - [ ] README 文件完成
@@ -220,4 +226,9 @@
 
 **已完成項目**：
 - Day 1: User 模型實作與環境設定
-- Day 2: UserPoints 模型實作、Product 模型與 CRUD API 實作
+- Day 2: UserPoints 模型實作、Product 模型與 CRUD API 實作、JWT 認證整合
+- Day 3: 商品權限控制實作、點數儲值 API 實作
+- Day 4: 點數兌換 API 實作、資料庫事務機制、併發控制
+- Day 5: API 文件化（drf-spectacular）、錯誤處理統一格式
+- Day 6: 單元測試撰寫（認證、商品權限、點數儲值、點數兌換）
+- 額外完成：用戶個人資料查詢 API（GET /api/users/me/）
