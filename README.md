@@ -11,7 +11,7 @@
 - **點數管理**：會員可儲值點數、查詢餘額與交易紀錄
 - **商品兌換**：會員可使用點數兌換商品（支援多數量兌換，最多 5 個）
 - **權限控制**：基於角色的權限管理（MEMBER、STORE、ADMIN）
-- **併發控制**：使用資料庫事務與悲觀鎖確保資料一致性
+- **併發控制**：使用資料庫事務確保資料一致性
 
 ## 專案結構
 
@@ -304,12 +304,12 @@ curl -X GET http://localhost:8000/api/users/me/ \
 
 ### 5. 高併發安全性處理
 
-**設計**：使用 `transaction.atomic()` + `select_for_update()` 悲觀鎖機制處理高併發場景。
+**設計**：使用 `transaction.atomic()` + `select_for_update()` 處理高併發場景。
 
 **實作細節**：
 
 1. **資料庫事務**：使用 `transaction.atomic()` 確保所有操作要麼全部成功，要麼全部失敗
-2. **悲觀鎖**：使用 `select_for_update()` 鎖定關鍵資源（Product、UserPoints）
+2. 使用 `select_for_update()` 鎖定關鍵資源（Product、UserPoints）
 3. **鎖定順序**：先鎖定 Product，再鎖定 UserPoints，避免死鎖
 4. **驗證時機**：在鎖定後才進行庫存和餘額檢查，避免競態條件
 
