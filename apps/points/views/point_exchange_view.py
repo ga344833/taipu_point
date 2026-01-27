@@ -65,6 +65,7 @@ class PointExchangeView(CreateAPIView):
         serializer.is_valid(raise_exception=True)
         
         product_id = serializer.validated_data["product_id"]
+        quantity = serializer.validated_data.get("quantity", 1)
         
         # 使用資料庫事務確保一致性
         with transaction.atomic():
@@ -80,10 +81,14 @@ class PointExchangeView(CreateAPIView):
                     status=status.HTTP_400_BAD_REQUEST
                 )
             
-            # 2. 驗證庫存
-            if product.stock <= 0:
+            # 2. 驗證庫存是否足夠（在鎖定後檢查，避免競態條件）
+            if product.stock < quantity:
                 return Response(
-                    {"detail": "商品庫存不足，無法兌換"},
+                    {
+                        "detail": "商品庫存不足，無法兌換",
+                        "required": quantity,
+                        "available": product.stock,
+                    },
                     status=status.HTTP_400_BAD_REQUEST
                 )
             
@@ -99,25 +104,28 @@ class PointExchangeView(CreateAPIView):
                     status=status.HTTP_400_BAD_REQUEST
                 )
             
-            # 5. 驗證餘額是否足夠
-            required_points = product.required_points
+            # 5. 計算總點數並驗證餘額是否足夠
+            required_points_per_item = product.required_points
+            total_points_required = required_points_per_item * quantity
             balance_before = user_points.balance  # 記錄原始餘額
             
-            if balance_before < required_points:
+            if balance_before < total_points_required:
                 return Response(
                     {
                         "detail": "點數餘額不足",
-                        "required": required_points,
+                        "required": total_points_required,
                         "balance": balance_before,
+                        "quantity": quantity,
+                        "points_per_item": required_points_per_item,
                     },
                     status=status.HTTP_400_BAD_REQUEST
                 )
             
             # 6. 計算新餘額
-            new_balance = balance_before - required_points
+            new_balance = balance_before - total_points_required
             
             # 7. 更新庫存
-            product.stock -= 1
+            product.stock -= quantity
             product.save(update_fields=["stock"])
             
             # 8. 更新餘額
@@ -130,23 +138,24 @@ class PointExchangeView(CreateAPIView):
             while PointExchange.objects.filter(exchange_code=exchange_code).exists():
                 exchange_code = generate_exchange_code()
             
-            # 10. 建立兌換紀錄
+            # 10. 建立兌換紀錄（一次兌換建立一筆紀錄，包含 quantity）
             point_exchange = PointExchange.objects.create(
                 user=request.user,
                 product=product,
                 exchange_code=exchange_code,
-                points_spent=required_points,
+                quantity=quantity,
+                points_spent=total_points_required,
                 status=ExchangeStatusChoices.PENDING,
             )
             
             # 11. 建立交易紀錄（amount 為負數，表示扣點）
             point_transaction = PointTransaction.objects.create(
                 user=request.user,
-                amount=-required_points,  # 負數表示扣點
+                amount=-total_points_required,  # 負數表示扣點
                 tx_type=TransactionTypeChoices.REDEMPTION,
                 is_success=True,
                 balance_after=new_balance,
-                memo=f"兌換商品：{product.name}",
+                memo=f"兌換商品：{product.name} x{quantity}",
             )
         
         return Response(
@@ -158,7 +167,8 @@ class PointExchangeView(CreateAPIView):
                     "id": product.id,
                     "name": product.name,
                 },
-                "points_spent": required_points,
+                "quantity": quantity,
+                "points_spent": total_points_required,
                 "balance_before": balance_before,
                 "balance_after": new_balance,
                 "transaction_id": point_transaction.id,

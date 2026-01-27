@@ -1,5 +1,5 @@
 from django.db import models
-from django.core.validators import MinValueValidator
+from django.core.validators import MinValueValidator, MaxValueValidator
 from django.conf import settings
 from django.utils.translation import gettext_lazy as _
 from core.models.base_model import BaseModel
@@ -39,9 +39,15 @@ class PointExchange(BaseModel):
         help_text="交換序號，用於店家核銷（格式：EX + 日期 + 隨機碼）",
     )
     
+    quantity = models.IntegerField(
+        default=1,
+        validators=[MinValueValidator(1), MaxValueValidator(5)],
+        help_text="兌換數量（1-5）",
+    )
+    
     points_spent = models.IntegerField(
         validators=[MinValueValidator(1)],
-        help_text="消費點數，紀錄當時交換的點數價格",
+        help_text="消費點數，紀錄當時交換的點數價格（required_points * quantity）",
     )
     
     status = models.CharField(
@@ -64,4 +70,4 @@ class PointExchange(BaseModel):
         ]
     
     def __str__(self):
-        return f"{self.user.username} - {self.product.name} ({self.exchange_code})"
+        return f"{self.user.username} - {self.product.name} x{self.quantity} ({self.exchange_code})"
