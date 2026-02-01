@@ -13,6 +13,10 @@
 - **權限控制**：基於角色的權限管理（MEMBER、STORE、ADMIN）
 - **併發控制**：使用資料庫事務確保資料一致性
 
+### 角色功能&流程圖
+
+[DrawIO 連結](https://drive.google.com/file/d/1bLPiNbW3bQsYYEzwATy0lkXqXLYCLB11/view?usp=sharing)
+
 ## 專案結構
 
 ```
