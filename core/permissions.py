@@ -47,3 +47,16 @@ class IsProductOwner(permissions.BasePermission):
         
         # 檢查是否為商品擁有者
         return obj.store == request.user
+
+
+class IsStoreOrAdmin(permissions.BasePermission):
+    """
+    僅允許 role=STORE 或 role=ADMIN 的用戶操作
+    
+    用於需要店家或管理員權限的功能（如：核銷兌換紀錄）。
+    """
+    
+    def has_permission(self, request, view):
+        if not request.user or not request.user.is_authenticated:
+            return False
+        return request.user.role in [RoleChoices.STORE, RoleChoices.ADMIN]
